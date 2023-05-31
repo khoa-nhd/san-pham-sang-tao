@@ -1,0 +1,616 @@
+import pygame
+import random
+import time
+import turtle
+
+# Class thể hiện đối tượng Câu hỏi
+# Một đối tượng Question gồm có 2 fields: .
+# - question: đề bài
+# - answer: đáp án
+class Question:
+    def __init__(self, question, answer):
+        self.question = question
+        self.answer = answer
+
+        
+# Class thể hiện trạng thái hiện tại của trò chơi
+class GameState:
+    # Điểm số hiện tại
+    score = 0
+    # Khởi động lại đồng hồ bấm giờ: cho giá trị bằng thời gian hiện tại
+    def reset_timer(self):
+        self.start_time = time.time()
+    # Trả về thời gian trả lời câu hỏi (tính bằng giây), bằng cách lấy
+    # thời gian đồng hồ trừ đi thời gian start_time đã lưu.
+    def get_timer(self):
+        return time.time() - self.start_time
+
+# Khởi tạo đối tượng cụ thể lưu trạng thái của trò chơi.
+state = GameState()
+
+# Dùng thư viện pygame để chơi âm thanh. 
+def play_music(file):
+    pygame.mixer.init()
+    pygame.mixer.music.load(file)
+    pygame.mixer.music.play(-1)
+    
+def play_sound(file):
+    pygame.mixer.init()
+    sound = pygame.mixer.Sound(file)
+    sound.play()
+# Vẽ hình nhân vật.
+avatar = turtle.Turtle()         
+def draw_avatar(image):
+    # Phải gọi lệnh turtle.addshape trước khi vẽ ảnh.
+    turtle.addshape(image)  
+    avatar.clear()
+    avatar.penup()
+    avatar.setposition(0, 0)
+    # Lưu ý: turtle chỉ vẽ được ảnh có định dạng .gif
+    avatar.shape(image)
+
+# Khởi tạo cây bút chuyên dùng để vẽ thời gian.
+pen_timer = turtle.Turtle()
+def draw_timer():
+    # Ẩn con rùa.
+    pen_timer.hideturtle()
+    # Nhấc bút lên.
+    pen_timer.penup()
+    # Xoá, để khi vẽ điểm không bị đè lên nhau.
+    pen_timer.clear()
+    # Đổi màu.
+    pen_timer.color('blue')
+    # Đặt vị trí.
+    pen_timer.setposition(-470, -20)
+    # Viết điểm số ra màn hình.
+    pen_timer.write(round(state.get_timer()), font=get_font(40))
+    # Vẽ lại điểm số sau 1000ms (1 giây) nữa
+    turtle.Screen().ontimer(draw_timer, 1000)
+# Khai báo dữ liệu câu hỏi và đáp án
+def read_data():
+    # Đọc câu hỏi và đáp án từ Files.
+    # Số lượng câu hỏi
+    num_questions = 1
+    # Ban đầu, mảng dữ liệu là trống
+    data = []
+    # Các file câu hỏi đánh số là q1.txt, q2.txt, q3.txt,...
+    # Các file câu trả lời đánh số là a1.txt, a2.txt, a3.txt,...
+    # Ta dùng hàm range(1, x + 1) để duyệt qua các số 1, 2, ..., x
+    for i in range(1, num_questions + 1):
+        # Đọc câu hỏi, dùng encoding='utf-8' để đọc tiếng Việt
+        filename = 'q' + str(i) + '.txt'
+        f = open(filename, 'r', encoding='utf-8')
+        question = f.read()
+        f.close()    
+        
+        # Đọc đáp án
+        filename = 'a' + str(i) + '.txt'
+        f = open(filename, 'r', encoding='utf-8')
+        answer = f.read()
+        f.close()    
+
+        # Tạo đối tượng Question và thêm vào mảng dữ liệu data
+        data.append(Question(question, answer))
+    # Trả về mảng dữ liệu data     
+    return data
+
+
+# Sinh ra các câu hỏi tính nhẩm ngẫu nhiên Siêu Trí Tuệ
+def generate_math_questions():
+    # Ban đầu, danh sách câu hỏi trống.
+    data = []
+    # Số lượng câu hỏi sinh ra.
+    num_questions = 1
+    # Hai phép toán: cộng và nhân
+    operators = ["+", "x", ":", "-"]    
+    # Số lượng chữ số tối đa khi sinh câu hỏi ngẫu nhiên
+    max_digits = 2
+    for i in range(num_questions):
+        # Chọn số ngẫu nhiên từ 0 đến 10^max_digits - 1
+        a = random.randint(1, 10**max_digits)
+        b = random.randint(1, 10**max_digits)
+        # Chọn một phép toán ngẫu nhiên
+        op = random.choice(operators)
+        
+        if op == ':':
+            while a % b != 0:
+                a = random.randint(1, 10**(max_digits-1))
+                b = random.randint(1, 10**(max_digits-1))
+                a = a * b
+        elif op == "-":
+            if b > a:
+                a, b = b, a
+        
+        # Sinh ra đề bài
+        question = str(a) + " " + op + " " + str(b) + " = ?"
+        # Sinh ra đáp án
+        if op == "+":
+            answer = a + b
+        elif op == "x":
+            answer = a * b
+        elif op == ":":
+            answer = a / b
+            int(answer)
+        elif op == "-":
+            answer = a - b
+        # Thêm câu hỏi vào danh sách
+        data.append(Question(question, str(answer)))
+    # Trả về danh sách câu hỏi tính nhẩm Siêu Trí Tuệ.
+    return data
+
+
+
+                    # Trả về font chữ với kích thước được cho.
+def get_font(font_size):
+    return ("Arial", font_size, "normal")
+
+# Khởi tạo cây bút chuyên dùng để vẽ Điểm số.
+pen_score = turtle.Turtle()
+def draw_score():
+    # Ẩn con rùa.
+    pen_score.hideturtle()
+    # Nhấc bút lên.
+    pen_score.penup()
+    # Xoá, để khi vẽ điểm không bị đè lên nhau.
+    pen_score.clear()
+    # Đổi màu.
+    pen_score.color('white')
+    # Đặt vị trí.
+    pen_score.setposition(-140, -185)
+    # Viết điểm số ra màn hình.
+    pen_score.write(state.score, font=get_font(20))
+
+# In câu hỏi ra màn hình
+def ask_question(question, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat):
+    # In ra dấu * ngăn cách giữa hai câu hỏi
+    print("***************************")
+    print(question.question)
+    # Xoá màn hình trước khi vẽ để chữ khỏi bị viết đè lên nhau
+    turtle.clear()
+    # Ẩn con rùa (hình tam giác) 
+    turtle.hideturtle()
+    # Nhấc bút lên (để khỏi để lại dấu vết)
+    turtle.penup()
+    # Vẽ hình nhân vật trạng thái bình thường 
+    draw_avatar('normal.gif')
+    # Đặt vị trí bút (để viết câu hỏi)
+    turtle.setposition(40, 20)
+    # In câu hỏi ra màn hình Turtle và cho biết cỡ font chữ.
+    turtle.write(question.question, font=get_font(10))
+    # Gọi hàm viết điểm số ra màn hình.
+    draw_score()
+    # Trước khi hỏi câu hỏi mới, cần khởi động lại đồng hồ bấm giờ
+    state.reset_timer()
+    draw_timer()
+    # Hỏi người dùng nhập câu trả lời qua giao diện Turtle
+    result = turtle.textinput("Siêu trả lời", "Câu trả lời của bạn là gì???\n")
+    # So sánh kết quả của người chơi nhập vào với đáp án
+    lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat = check_result(result, question.answer, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat)
+    return (lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat)
+    
+# So sánh câu trả lời với đáp án
+def check_result(result, answer, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat):
+    # Thời gian người chơi trả lời câu hỏi (tính bằng giây).
+    time_taken = state.get_timer()
+    # Tính điểm thưởng nếu trả lời nhanh.
+    if time_taken < 5:
+        bonus = 100
+    else:
+        bonus = 0
+    if result == answer:
+        lanDung = lanDung + 1
+        if lanDung > lanDungNhieuNhat:
+            lanDungNhieuNhat = lanDung
+        thoiGian = time_taken
+        if thoiGian < thoiGianItNhat:
+            thoiGianItNhat = thoiGian
+        # Cộng điểm nếu người chơi trả lời đúng
+        # Cộng điểm trả lời đúng và cả điểm thưởng nữa.
+        state.score += 100 + bonus    
+        # Chơi âm thanh cho biết trả lời đúng.
+        play_sound("correct_answer.wav")
+        play_sound("corect1.mp3")
+
+        # Vẽ hình nhân vật khi trả lời đúng.
+        draw_avatar('correct.gif')
+        print("Đúng rồi")
+    else:
+        lanDung = 0
+        # Chơi âm thanh cho biết trả lời sai.
+        state.score -= 50
+        play_sound("wrong.mp3")
+        play_sound("wrong_answer.wav")
+        play_sound("wrong1.mp3")
+
+        # Vẽ hình nhân vật khi trả lời sai.
+        draw_avatar('wrong.gif')
+        print("Sai rồi")
+
+    # Chờ một chút để thấy rõ nhân vật cử động.
+    time.sleep(0.5)
+    print("Thời gian trả lời câu hỏi là:", round(time_taken), "giây")
+    if bonus > 0:
+        print("Bạn nhận được điểm thưởng là", bonus, "vì trả lời nhanh")            
+    print("Điểm hiện tại của bạn là: ", state.score)
+    return (lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat)
+
+# Thiết lập màn hình giao diện turtle
+def setup_turtle():
+    # Màn hình Turtle
+    screen = turtle.Screen()
+    # Thiết lập kích thước màn hình 
+    screen.setup(1190, 666)
+    # Thiết lập ảnh nền cho màn hình
+    screen.bgpic('background.png')
+    # Thiết lập tiêu đề cho cửa sổ chương trình
+    turtle.title("Siêu câu đố")
+    
+# Gọi hàm thiết lập màn hình    
+setup_turtle()
+# Chơi nhạc
+
+play_music("music.wav")
+
+# Vẽ thời gian
+#state.reset_timer()
+#draw_timer()
+# Kết hợp các câu đố vui đọc từ File với các câu tính nhẩm Siêu Trí Tuệ.
+data = read_data() + generate_math_questions()
+
+
+# Xáo trộn các câu hỏi một cách ngẫu nhiên
+random.shuffle(data)
+lanDung = 0
+thoiGianItNhat = 100
+thoiGian = 0
+lanDungNhieuNhat = 0
+for question in data:
+    lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat = ask_question(question, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat)
+print("Bạn có lần đúng liên tiếp nhều nhất là: " + str(lanDungNhieuNhat) + " lần.")
+print("Thời gian suy nghĩ nhanh nhất mà có câu trả lời chính xác là: " + str(thoiGianItNhat) + " giây.")
+    
+turtle.bye()
+
+
+
+#Chúc mừng
+print("Bạn thật giỏi! Chúc mừng!")
+import pygame as pg
+import sys, os
+pg.init()
+clock = pg.time.Clock()
+
+
+WIDTH = 724 
+HEIGHT = 540 
+
+FPS = 60
+
+IMAGE_WIDTH = 720 
+IMAGE_HEIGHT = 540
+OFFSET = 100
+
+ASSETS_PATH = './'
+timeBetweenPicture = 0.95
+timeBetweenPicture1 = 0.5
+moves = {
+    'move0': {
+        'time': 0,
+        'sprites': [
+            '0.png'
+            ]
+        },
+    'move1': {
+        'time': timeBetweenPicture,
+        'sprites': [
+            '1.1.png',
+            '1.2.png',
+            '1.3.png'
+            ]
+        },
+    'move2': {
+        'time': timeBetweenPicture,
+        'sprites': [
+            '2.1.png',
+            '2.2.png'
+            ]
+        },
+    'move3': {
+        'time': timeBetweenPicture,
+        'sprites': [
+            '3.1.png',
+            '3.2.png'
+            ]
+        },
+    'move4': {
+        'time': timeBetweenPicture,
+        'sprites': [
+            '4.1.png',
+           '4.2.png'
+            ]
+        },
+    'move5': {
+        'time': timeBetweenPicture,
+        'sprites': [
+            '5.1.png',
+            '5.2.png'
+            ]
+        },
+    'move6': {
+        'time': timeBetweenPicture,
+        'sprites': [
+            '6.1.png',
+            '6.2.png'
+            ]
+        },
+    'move7': {
+        'time': timeBetweenPicture1,
+        'sprites': [
+            '7.1.png',
+            '7.2.png',
+            '7.3.png'
+            ]
+        }
+    }
+procedure = [
+    'move0',
+    'move1',
+    'move2',
+    'move3',
+    'move4',
+    'move1',
+    'move2',
+    'move3',
+    'move4',
+    'move5',
+    'move6',
+    'move3',
+    'move4',
+    'move5',
+    'move6',
+    'move3',
+    'move7',
+    'move7',
+    'move7'
+    ]
+
+class Dancer(pg.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.moves = {}
+        self.current_move = 0
+        self.current_sprite = 0
+        self.frames_per_image = 0
+        self.count = 0
+        self.image = None
+        self.rect = None
+        
+    def init(self):
+        self.load_images()
+        self.draw_image(self.moves[procedure[self.current_move]]['sprites'][self.current_sprite])
+    
+    def load_images(self):
+        count = 0
+        for move in moves:
+            count+=1
+            sprites = []
+            for sprite in moves[move]['sprites']:
+                sprites.append(pg.image.load(os.path.join(ASSETS_PATH+move,sprite)))
+            self.moves[move]= {
+                'time': moves[move]['time'],
+                'sprites': sprites
+                }
+    def draw_image(self,sprite):
+        self.image = sprite
+        self.image = pg.transform.scale(self.image, (IMAGE_WIDTH, IMAGE_HEIGHT))
+        self.rect = self.image.get_rect()
+        self.rect.topleft = [0,0]
+      
+    def update(self):
+        number_of_moves = len(procedure)
+        if self.current_move < number_of_moves:
+            number_of_sprites = len(self.moves[procedure[self.current_move]]['sprites'])
+            time_of_move = self.moves[procedure[self.current_move]]['time']
+            self.frames_per_image = FPS*time_of_move//number_of_sprites
+            
+            if self.count >= self.frames_per_image:
+                if self.current_sprite < number_of_sprites:
+                    self.next_sprite()
+                else:
+                    self.next_move()
+                    
+            self.count += 1
+            
+
+    def next_sprite(self):
+        sprite = self.moves[procedure[self.current_move]]['sprites'][self.current_sprite]
+        self.draw_image(sprite)
+        self.count = 0
+        self.current_sprite += 1
+    
+    def next_move(self):
+        self.current_move += 1
+        self.current_sprite = 0
+    
+
+def main():
+    screen = pg.display.set_mode((WIDTH,HEIGHT))
+    pg.display.set_caption("Bạn thật giỏi! Chúc mừng!")
+    moving_sprites = pg.sprite.Group()
+    dancer = Dancer()
+    dancer.init()
+    moving_sprites.add(dancer)
+
+    pg.mixer.init()
+    pg.mixer.music.load(os.path.join(ASSETS_PATH,'music1.wav'))
+    pg.mixer.music.play(-1)
+    import datetime 
+    start_time = datetime.datetime.now() 
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+        moving_sprites.update()
+        moving_sprites.draw(screen)
+        now_time = datetime.datetime.now() 
+        pg.display.flip()
+        clock.tick(FPS)
+        if now_time.second - start_time.second > 17:
+            break
+
+
+if __name__ == "__main__":
+    main()
+    
+
+print("Mình có 1 trò chơi tặng bạn bạn hãy vượt qua các robot và đến đích nhé!")
+# Game né robot
+
+class Door:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        sprite = pygame.image.load("sprites/door.png")
+        self.image = pygame.transform.scale(sprite, (80, 80))
+
+class Robot:
+    def __init__(self, x, y, x_heading, y_heading, hinh_anh):
+        self.x = x
+        self.y = y
+        self.x_heading = x_heading
+        self.y_heading = y_heading
+        sprite = pygame.image.load(hinh_anh)
+        self.image = pygame.transform.scale(sprite, (60, 60))
+
+    def move(self):
+        self.x = self.x + self.x_heading
+        self.y = self.y + self.y_heading
+        
+        if self.x > 440: self.x_heading = - self.x_heading
+        if self.x < 0:   self.x_heading = - self.x_heading
+        if self.y > 440: self.y_heading = - self.y_heading
+        if self.y < 0:   self.y_heading = - self.y_heading
+
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        sprite = pygame.image.load("sprites/trau.png")
+        self.image = pygame.transform.scale(sprite, (50, 80))
+    
+    def move(self, change_x, change_y):
+        new_x = self.x + change_x
+        new_y = self.y + change_y
+
+        if new_x > 0 and new_x < 450:
+            self.x = new_x
+        if new_y > 0 and new_y < 420:
+            self.y = new_y
+
+    def touch(self, obj):
+        mask1 = pygame.mask.from_surface(self.image)
+        mask2 = pygame.mask.from_surface(obj.image)
+        offset_x = obj.x - self.x
+        offset_y = obj.y - self.y
+        if mask1.overlap(mask2, (offset_x, offset_y)):
+            return True
+        else:
+            return False
+
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.WIDTH = 500  
+        self.HEIGHT = 500  
+        self.screen = pygame.display.set_mode([self.WIDTH, self.HEIGHT])
+
+        self.clock = pygame.time.Clock()
+        self.FPS = 100    
+        self.font = pygame.font.SysFont("Times New Roman", 30, bold=True)
+
+    def draw_background(self):
+        BLACK = (0, 0, 0)
+        self.screen.fill(BLACK)
+        background = pygame.image.load("sprites/background.png").convert_alpha()
+        background = pygame.transform.scale(background, (self.WIDTH, self.HEIGHT))
+        self.screen.blit(background, (0, 0))
+    
+    def draw_new_frame(self):
+        pygame.display.flip()
+        self.clock.tick(self.FPS)
+
+    def draw_object(self, obj):
+        self.screen.blit(obj.image, (obj.x, obj.y))
+
+    def draw_result(self, win):
+
+        YELLOW = (255, 255, 0)
+        if win:
+            text = self.font.render("YOU WON!! YOU THE BEST!!", 1, YELLOW)
+            self.screen.blit(text, (50, 250))
+        else:
+            text = self.font.render("GAME OVER!!", 1, YELLOW)
+            self.screen.blit(text, (150, 250))
+
+    def is_quit(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return True
+        return False
+
+    def start(self):
+        trau = Player(100, 250)
+        door = Door(375, 20)
+
+        robots = [
+            Robot(100, 400, 5, 0, "sprites/robot1.png"),
+            Robot(300, 300, 0, 5, "sprites/robot2.png"),
+            Robot(200, 200, 10, 2, "sprites/robot3.png"),
+            Robot(100, 100, -2, -5, "sprites/robot4.png")
+        ]
+
+        end_game = False
+        is_won = False
+
+        running = True
+        while running:
+            if self.is_quit():
+                running = False
+
+            self.draw_background()
+            
+            if not end_game:
+                pressed = pygame.key.get_pressed()
+                if pressed[pygame.K_UP]:    trau.move( 0, -5)
+                if pressed[pygame.K_DOWN]:  trau.move( 0,  5)
+                if pressed[pygame.K_LEFT]:  trau.move(-5,  0)
+                if pressed[pygame.K_RIGHT]: trau.move( 5,  0)
+
+                if trau.touch(door):
+                    print("YOU WON!! YOU THE BEST!!")
+                    end_game = True
+                    is_won = True
+
+                for robot in robots:
+                    robot.move()
+
+                    if trau.touch(robot):
+                        print("GAME OVER!!")
+                        end_game = True
+                        is_won = False
+            
+            self.draw_object(trau)
+            for robot in robots:
+                self.draw_object(robot)
+            self.draw_object(door)
+            
+            if end_game:
+                self.draw_result(is_won)
+
+            self.draw_new_frame()
+            
+        pygame.quit()
+
+game = Game()
+game.start()
