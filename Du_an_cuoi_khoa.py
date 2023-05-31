@@ -70,7 +70,7 @@ def draw_timer():
 def read_data():
     # Đọc câu hỏi và đáp án từ Files.
     # Số lượng câu hỏi
-    num_questions = 1
+    num_questions = 20
     # Ban đầu, mảng dữ liệu là trống
     data = []
     # Các file câu hỏi đánh số là q1.txt, q2.txt, q3.txt,...
@@ -100,7 +100,7 @@ def generate_math_questions():
     # Ban đầu, danh sách câu hỏi trống.
     data = []
     # Số lượng câu hỏi sinh ra.
-    num_questions = 1
+    num_questions = 5
     # Hai phép toán: cộng và nhân
     operators = ["+", "x", ":", "-"]    
     # Số lượng chữ số tối đa khi sinh câu hỏi ngẫu nhiên
