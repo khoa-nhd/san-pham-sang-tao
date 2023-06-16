@@ -291,345 +291,347 @@ print("Thời gian suy nghĩ nhanh nhất mà có câu trả lời chính xác l
 turtle.bye()
 
 
+if state.score >= 300:
+    #Chúc mừng
+    print("Bạn thật giỏi! Chúc mừng!")
+    import pygame as pg
+    import sys, os
+    pg.init()
+    clock = pg.time.Clock()
 
-#Chúc mừng
-print("Bạn thật giỏi! Chúc mừng!")
-import pygame as pg
-import sys, os
-pg.init()
-clock = pg.time.Clock()
 
+    WIDTH = 724 
+    HEIGHT = 540 
 
-WIDTH = 724 
-HEIGHT = 540 
+    FPS = 60
 
-FPS = 60
+    IMAGE_WIDTH = 720 
+    IMAGE_HEIGHT = 540
+    OFFSET = 100
 
-IMAGE_WIDTH = 720 
-IMAGE_HEIGHT = 540
-OFFSET = 100
-
-ASSETS_PATH = './'
-timeBetweenPicture = 0.95
-timeBetweenPicture1 = 0.5
-moves = {
-    'move0': {
-        'time': 0,
-        'sprites': [
-            '0.png'
-            ]
-        },
-    'move1': {
-        'time': timeBetweenPicture,
-        'sprites': [
-            '1.1.png',
-            '1.2.png',
-            '1.3.png'
-            ]
-        },
-    'move2': {
-        'time': timeBetweenPicture,
-        'sprites': [
-            '2.1.png',
-            '2.2.png'
-            ]
-        },
-    'move3': {
-        'time': timeBetweenPicture,
-        'sprites': [
-            '3.1.png',
-            '3.2.png'
-            ]
-        },
-    'move4': {
-        'time': timeBetweenPicture,
-        'sprites': [
-            '4.1.png',
-           '4.2.png'
-            ]
-        },
-    'move5': {
-        'time': timeBetweenPicture,
-        'sprites': [
-            '5.1.png',
-            '5.2.png'
-            ]
-        },
-    'move6': {
-        'time': timeBetweenPicture,
-        'sprites': [
-            '6.1.png',
-            '6.2.png'
-            ]
-        },
-    'move7': {
-        'time': timeBetweenPicture1,
-        'sprites': [
-            '7.1.png',
-            '7.2.png',
-            '7.3.png'
-            ]
+    ASSETS_PATH = './'
+    timeBetweenPicture = 0.95
+    timeBetweenPicture1 = 0.5
+    moves = {
+        'move0': {
+            'time': 0,
+            'sprites': [
+                '0.png'
+                ]
+            },
+        'move1': {
+            'time': timeBetweenPicture,
+            'sprites': [
+                '1.1.png',
+                '1.2.png',
+                '1.3.png'
+                ]
+            },
+        'move2': {
+            'time': timeBetweenPicture,
+            'sprites': [
+                '2.1.png',
+                '2.2.png'
+                ]
+            },
+        'move3': {
+            'time': timeBetweenPicture,
+            'sprites': [
+                '3.1.png',
+                '3.2.png'
+                ]
+            },
+        'move4': {
+            'time': timeBetweenPicture,
+            'sprites': [
+                '4.1.png',
+               '4.2.png'
+                ]
+            },
+        'move5': {
+            'time': timeBetweenPicture,
+            'sprites': [
+                '5.1.png',
+                '5.2.png'
+                ]
+            },
+        'move6': {
+            'time': timeBetweenPicture,
+            'sprites': [
+                '6.1.png',
+                '6.2.png'
+                ]
+            },
+        'move7': {
+            'time': timeBetweenPicture1,
+            'sprites': [
+                '7.1.png',
+                '7.2.png',
+                '7.3.png'
+                ]
+            }
         }
-    }
-procedure = [
-    'move0',
-    'move1',
-    'move2',
-    'move3',
-    'move4',
-    'move1',
-    'move2',
-    'move3',
-    'move4',
-    'move5',
-    'move6',
-    'move3',
-    'move4',
-    'move5',
-    'move6',
-    'move3',
-    'move7',
-    'move7',
-    'move7'
-    ]
-
-class Dancer(pg.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.moves = {}
-        self.current_move = 0
-        self.current_sprite = 0
-        self.frames_per_image = 0
-        self.count = 0
-        self.image = None
-        self.rect = None
-        
-    def init(self):
-        self.load_images()
-        self.draw_image(self.moves[procedure[self.current_move]]['sprites'][self.current_sprite])
-    
-    def load_images(self):
-        count = 0
-        for move in moves:
-            count+=1
-            sprites = []
-            for sprite in moves[move]['sprites']:
-                sprites.append(pg.image.load(os.path.join(ASSETS_PATH+move,sprite)))
-            self.moves[move]= {
-                'time': moves[move]['time'],
-                'sprites': sprites
-                }
-    def draw_image(self,sprite):
-        self.image = sprite
-        self.image = pg.transform.scale(self.image, (IMAGE_WIDTH, IMAGE_HEIGHT))
-        self.rect = self.image.get_rect()
-        self.rect.topleft = [0,0]
-      
-    def update(self):
-        number_of_moves = len(procedure)
-        if self.current_move < number_of_moves:
-            number_of_sprites = len(self.moves[procedure[self.current_move]]['sprites'])
-            time_of_move = self.moves[procedure[self.current_move]]['time']
-            self.frames_per_image = FPS*time_of_move//number_of_sprites
-            
-            if self.count >= self.frames_per_image:
-                if self.current_sprite < number_of_sprites:
-                    self.next_sprite()
-                else:
-                    self.next_move()
-                    
-            self.count += 1
-            
-
-    def next_sprite(self):
-        sprite = self.moves[procedure[self.current_move]]['sprites'][self.current_sprite]
-        self.draw_image(sprite)
-        self.count = 0
-        self.current_sprite += 1
-    
-    def next_move(self):
-        self.current_move += 1
-        self.current_sprite = 0
-    
-
-def main():
-    screen = pg.display.set_mode((WIDTH,HEIGHT))
-    pg.display.set_caption("Bạn thật giỏi! Chúc mừng!")
-    moving_sprites = pg.sprite.Group()
-    dancer = Dancer()
-    dancer.init()
-    moving_sprites.add(dancer)
-
-    pg.mixer.init()
-    pg.mixer.music.load(os.path.join(ASSETS_PATH,'music1.wav'))
-    pg.mixer.music.play(-1)
-    import datetime 
-    start_time = datetime.datetime.now() 
-    while True:
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                pg.quit()
-                sys.exit()
-        moving_sprites.update()
-        moving_sprites.draw(screen)
-        now_time = datetime.datetime.now() 
-        pg.display.flip()
-        clock.tick(FPS)
-        if now_time.second - start_time.second > 17:
-            break
-
-
-if __name__ == "__main__":
-    main()
-    
-
-print("Mình có 1 trò chơi tặng bạn bạn hãy vượt qua các robot và đến đích nhé!")
-# Game né robot
-
-class Door:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        sprite = pygame.image.load("sprites/door.png")
-        self.image = pygame.transform.scale(sprite, (80, 80))
-
-class Robot:
-    def __init__(self, x, y, x_heading, y_heading, hinh_anh):
-        self.x = x
-        self.y = y
-        self.x_heading = x_heading
-        self.y_heading = y_heading
-        sprite = pygame.image.load(hinh_anh)
-        self.image = pygame.transform.scale(sprite, (60, 60))
-
-    def move(self):
-        self.x = self.x + self.x_heading
-        self.y = self.y + self.y_heading
-        
-        if self.x > 440: self.x_heading = - self.x_heading
-        if self.x < 0:   self.x_heading = - self.x_heading
-        if self.y > 440: self.y_heading = - self.y_heading
-        if self.y < 0:   self.y_heading = - self.y_heading
-
-class Player:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        sprite = pygame.image.load("sprites/trau.png")
-        self.image = pygame.transform.scale(sprite, (50, 80))
-    
-    def move(self, change_x, change_y):
-        new_x = self.x + change_x
-        new_y = self.y + change_y
-
-        if new_x > 0 and new_x < 450:
-            self.x = new_x
-        if new_y > 0 and new_y < 420:
-            self.y = new_y
-
-    def touch(self, obj):
-        mask1 = pygame.mask.from_surface(self.image)
-        mask2 = pygame.mask.from_surface(obj.image)
-        offset_x = obj.x - self.x
-        offset_y = obj.y - self.y
-        if mask1.overlap(mask2, (offset_x, offset_y)):
-            return True
-        else:
-            return False
-
-class Game:
-    def __init__(self):
-        pygame.init()
-        self.WIDTH = 500  
-        self.HEIGHT = 500  
-        self.screen = pygame.display.set_mode([self.WIDTH, self.HEIGHT])
-
-        self.clock = pygame.time.Clock()
-        self.FPS = 100    
-        self.font = pygame.font.SysFont("Times New Roman", 30, bold=True)
-
-    def draw_background(self):
-        BLACK = (0, 0, 0)
-        self.screen.fill(BLACK)
-        background = pygame.image.load("sprites/background.png").convert_alpha()
-        background = pygame.transform.scale(background, (self.WIDTH, self.HEIGHT))
-        self.screen.blit(background, (0, 0))
-    
-    def draw_new_frame(self):
-        pygame.display.flip()
-        self.clock.tick(self.FPS)
-
-    def draw_object(self, obj):
-        self.screen.blit(obj.image, (obj.x, obj.y))
-
-    def draw_result(self, win):
-
-        YELLOW = (255, 255, 0)
-        if win:
-            text = self.font.render("YOU WON!! YOU THE BEST!!", 1, YELLOW)
-            self.screen.blit(text, (50, 250))
-        else:
-            text = self.font.render("GAME OVER!!", 1, YELLOW)
-            self.screen.blit(text, (150, 250))
-
-    def is_quit(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return True
-        return False
-
-    def start(self):
-        trau = Player(100, 250)
-        door = Door(375, 20)
-
-        robots = [
-            Robot(100, 400, 5, 0, "sprites/robot1.png"),
-            Robot(300, 300, 0, 5, "sprites/robot2.png"),
-            Robot(200, 200, 10, 2, "sprites/robot3.png"),
-            Robot(100, 100, -2, -5, "sprites/robot4.png")
+    procedure = [
+        'move0',
+        'move1',
+        'move2',
+        'move3',
+        'move4',
+        'move1',
+        'move2',
+        'move3',
+        'move4',
+        'move5',
+        'move6',
+        'move3',
+        'move4',
+        'move5',
+        'move6',
+        'move3',
+        'move7',
+        'move7',
+        'move7'
         ]
 
-        end_game = False
-        is_won = False
-
-        running = True
-        while running:
-            if self.is_quit():
-                running = False
-
-            self.draw_background()
+    class Dancer(pg.sprite.Sprite):
+        def __init__(self):
+            super().__init__()
+            self.moves = {}
+            self.current_move = 0
+            self.current_sprite = 0
+            self.frames_per_image = 0
+            self.count = 0
+            self.image = None
+            self.rect = None
             
-            if not end_game:
-                pressed = pygame.key.get_pressed()
-                if pressed[pygame.K_UP]:    trau.move( 0, -5)
-                if pressed[pygame.K_DOWN]:  trau.move( 0,  5)
-                if pressed[pygame.K_LEFT]:  trau.move(-5,  0)
-                if pressed[pygame.K_RIGHT]: trau.move( 5,  0)
+        def init(self):
+            self.load_images()
+            self.draw_image(self.moves[procedure[self.current_move]]['sprites'][self.current_sprite])
+        
+        def load_images(self):
+            count = 0
+            for move in moves:
+                count+=1
+                sprites = []
+                for sprite in moves[move]['sprites']:
+                    sprites.append(pg.image.load(os.path.join(ASSETS_PATH+move,sprite)))
+                self.moves[move]= {
+                    'time': moves[move]['time'],
+                    'sprites': sprites
+                    }
+        def draw_image(self,sprite):
+            self.image = sprite
+            self.image = pg.transform.scale(self.image, (IMAGE_WIDTH, IMAGE_HEIGHT))
+            self.rect = self.image.get_rect()
+            self.rect.topleft = [0,0]
+          
+        def update(self):
+            number_of_moves = len(procedure)
+            if self.current_move < number_of_moves:
+                number_of_sprites = len(self.moves[procedure[self.current_move]]['sprites'])
+                time_of_move = self.moves[procedure[self.current_move]]['time']
+                self.frames_per_image = FPS*time_of_move//number_of_sprites
+                
+                if self.count >= self.frames_per_image:
+                    if self.current_sprite < number_of_sprites:
+                        self.next_sprite()
+                    else:
+                        self.next_move()
+                        
+                self.count += 1
+                
 
-                if trau.touch(door):
-                    print("YOU WON!! YOU THE BEST!!")
-                    end_game = True
-                    is_won = True
+        def next_sprite(self):
+            sprite = self.moves[procedure[self.current_move]]['sprites'][self.current_sprite]
+            self.draw_image(sprite)
+            self.count = 0
+            self.current_sprite += 1
+        
+        def next_move(self):
+            self.current_move += 1
+            self.current_sprite = 0
+        
 
-                for robot in robots:
-                    robot.move()
+    def main():
+        screen = pg.display.set_mode((WIDTH,HEIGHT))
+        pg.display.set_caption("Bạn thật giỏi! Chúc mừng!")
+        moving_sprites = pg.sprite.Group()
+        dancer = Dancer()
+        dancer.init()
+        moving_sprites.add(dancer)
 
-                    if trau.touch(robot):
-                        print("GAME OVER!!")
+        pg.mixer.init()
+        pg.mixer.music.load(os.path.join(ASSETS_PATH,'music1.wav'))
+        pg.mixer.music.play(-1)
+        import datetime 
+        start_time = datetime.datetime.now() 
+        while True:
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    pg.quit()
+                    sys.exit()
+            moving_sprites.update()
+            moving_sprites.draw(screen)
+            now_time = datetime.datetime.now() 
+            pg.display.flip()
+            clock.tick(FPS)
+            if now_time.second - start_time.second > 17:
+                break
+
+
+    if __name__ == "__main__":
+        main()
+        
+
+    print("Mình có 1 trò chơi tặng bạn bạn hãy vượt qua các robot và đến đích nhé!")
+    # Game né robot
+
+    class Door:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+            sprite = pygame.image.load("sprites/door.png")
+            self.image = pygame.transform.scale(sprite, (80, 80))
+
+    class Robot:
+        def __init__(self, x, y, x_heading, y_heading, hinh_anh):
+            self.x = x
+            self.y = y
+            self.x_heading = x_heading
+            self.y_heading = y_heading
+            sprite = pygame.image.load(hinh_anh)
+            self.image = pygame.transform.scale(sprite, (60, 60))
+
+        def move(self):
+            self.x = self.x + self.x_heading
+            self.y = self.y + self.y_heading
+            
+            if self.x > 440: self.x_heading = - self.x_heading
+            if self.x < 0:   self.x_heading = - self.x_heading
+            if self.y > 440: self.y_heading = - self.y_heading
+            if self.y < 0:   self.y_heading = - self.y_heading
+
+    class Player:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+            sprite = pygame.image.load("sprites/trau.png")
+            self.image = pygame.transform.scale(sprite, (50, 80))
+        
+        def move(self, change_x, change_y):
+            new_x = self.x + change_x
+            new_y = self.y + change_y
+
+            if new_x > 0 and new_x < 450:
+                self.x = new_x
+            if new_y > 0 and new_y < 420:
+                self.y = new_y
+
+        def touch(self, obj):
+            mask1 = pygame.mask.from_surface(self.image)
+            mask2 = pygame.mask.from_surface(obj.image)
+            offset_x = obj.x - self.x
+            offset_y = obj.y - self.y
+            if mask1.overlap(mask2, (offset_x, offset_y)):
+                return True
+            else:
+                return False
+
+    class Game:
+        def __init__(self):
+            pygame.init()
+            self.WIDTH = 500  
+            self.HEIGHT = 500  
+            self.screen = pygame.display.set_mode([self.WIDTH, self.HEIGHT])
+
+            self.clock = pygame.time.Clock()
+            self.FPS = 100    
+            self.font = pygame.font.SysFont("Times New Roman", 30, bold=True)
+
+        def draw_background(self):
+            BLACK = (0, 0, 0)
+            self.screen.fill(BLACK)
+            background = pygame.image.load("sprites/background.png").convert_alpha()
+            background = pygame.transform.scale(background, (self.WIDTH, self.HEIGHT))
+            self.screen.blit(background, (0, 0))
+        
+        def draw_new_frame(self):
+            pygame.display.flip()
+            self.clock.tick(self.FPS)
+
+        def draw_object(self, obj):
+            self.screen.blit(obj.image, (obj.x, obj.y))
+
+        def draw_result(self, win):
+
+            YELLOW = (255, 255, 0)
+            if win:
+                text = self.font.render("YOU WON!! YOU THE BEST!!", 1, YELLOW)
+                self.screen.blit(text, (50, 250))
+            else:
+                text = self.font.render("GAME OVER!!", 1, YELLOW)
+                self.screen.blit(text, (150, 250))
+
+        def is_quit(self):
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return True
+            return False
+
+        def start(self):
+            trau = Player(100, 250)
+            door = Door(375, 20)
+
+            robots = [
+                Robot(100, 400, 5, 0, "sprites/robot1.png"),
+                Robot(300, 300, 0, 5, "sprites/robot2.png"),
+                Robot(200, 200, 10, 2, "sprites/robot3.png"),
+                Robot(100, 100, -2, -5, "sprites/robot4.png")
+            ]
+
+            end_game = False
+            is_won = False
+
+            running = True
+            while running:
+                if self.is_quit():
+                    running = False
+
+                self.draw_background()
+                
+                if not end_game:
+                    pressed = pygame.key.get_pressed()
+                    if pressed[pygame.K_UP]:    trau.move( 0, -5)
+                    if pressed[pygame.K_DOWN]:  trau.move( 0,  5)
+                    if pressed[pygame.K_LEFT]:  trau.move(-5,  0)
+                    if pressed[pygame.K_RIGHT]: trau.move( 5,  0)
+
+                    if trau.touch(door):
+                        print("YOU WON!! YOU THE BEST!!")
                         end_game = True
-                        is_won = False
-            
-            self.draw_object(trau)
-            for robot in robots:
-                self.draw_object(robot)
-            self.draw_object(door)
-            
-            if end_game:
-                self.draw_result(is_won)
+                        is_won = True
 
-            self.draw_new_frame()
-            
-        pygame.quit()
+                    for robot in robots:
+                        robot.move()
 
-game = Game()
-game.start()
+                        if trau.touch(robot):
+                            print("GAME OVER!!")
+                            end_game = True
+                            is_won = False
+                
+                self.draw_object(trau)
+                for robot in robots:
+                    self.draw_object(robot)
+                self.draw_object(door)
+                
+                if end_game:
+                    self.draw_result(is_won)
+
+                self.draw_new_frame()
+                
+            pygame.quit()
+
+    game = Game()
+    game.start()
+else:
+    print("You lost")
