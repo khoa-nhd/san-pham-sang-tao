@@ -7,6 +7,21 @@ import turtle
 # Một đối tượng Question gồm có 2 fields: .
 # - question: đề bài
 # - answer: đáp án
+
+che_do = int(input("Hãy chọn chế độ dễ, bình thường, khó hoặc khác, dễ nhập 1, bình thường nhập 2, khó nhập 3, khác nhập 4: "))
+if che_do == 1:
+    game_nummath = 3
+    game_numdd = 2
+elif che_do == 2:
+    game_nummath = 10
+    game_numdd = 5
+elif che_do == 3:
+    game_nummath = 20
+    game_numdd = 10
+else:
+    game_numath = int(input("Số câu hỏi về Toán Học: "))
+    game_numdd = int(input("Số câu hỏi về Đoàn Đội tối đa 20 câu: "))
+
 class Question:
     def __init__(self, question, answer):
         self.question = question
