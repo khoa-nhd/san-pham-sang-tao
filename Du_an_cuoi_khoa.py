@@ -12,15 +12,19 @@ che_do = int(input("Hãy chọn chế độ dễ, bình thường, khó hoặc k
 if che_do == 1:
     game_nummath = 3
     game_numdd = 2
+    math_digit = 1
 elif che_do == 2:
     game_nummath = 10
     game_numdd = 5
+    math_digit = 2
 elif che_do == 3:
     game_nummath = 20
     game_numdd = 10
+    math_digit = 3
 else:
     game_numath = int(input("Số câu hỏi về Toán Học: "))
     game_numdd = int(input("Số câu hỏi về Đoàn Đội tối đa 20 câu: "))
+    math_digit = int(input("Số lượng chữ số trong phép tính: "))
 
 class Question:
     def __init__(self, question, answer):
@@ -119,7 +123,7 @@ def generate_math_questions():
     # Hai phép toán: cộng và nhân
     operators = ["+", "x", ":", "-"]    
     # Số lượng chữ số tối đa khi sinh câu hỏi ngẫu nhiên
-    max_digits = 2
+    max_digits = math_digit
     for i in range(num_questions):
         # Chọn số ngẫu nhiên từ 0 đến 10^max_digits - 1
         a = random.randint(1, 10**max_digits)
