@@ -210,7 +210,7 @@ def ask_question(question, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat):
     lines = question.question.splitlines()
     for line in lines:
         turtle.write(line, font = font)
-        turtle.goto(question_text_left, turtle.ycor() - text_font_size - 2)
+        turtle.goto(question_text_left, turtle.ycor() - text_font_size - 10)
     # Gọi hàm viết điểm số ra màn hình.
     draw_score()
     # Trước khi hỏi câu hỏi mới, cần khởi động lại đồng hồ bấm giờ
