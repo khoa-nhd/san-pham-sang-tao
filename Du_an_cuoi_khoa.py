@@ -352,7 +352,6 @@ def setup_menu_screen():
     screen.onclick(clickPosition)
     turtle.mainloop()
 
-
 def setup_gameover_screen():
     global screen_name
     global final_score
