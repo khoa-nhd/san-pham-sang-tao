@@ -77,7 +77,7 @@ def draw_avatar(image):
 
 # Khởi tạo cây bút chuyên dùng để vẽ thời gian.
 pen_timer = turtle.Turtle()
-def draw_timer():setup_main_screen
+def draw_timer():
     # Ẩn con rùa.
     pen_timer.hideturtle()
     # Nhấc bút lên.
