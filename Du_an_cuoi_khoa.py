@@ -77,7 +77,7 @@ def draw_avatar(image):
 
 # Khởi tạo cây bút chuyên dùng để vẽ thời gian.
 pen_timer = turtle.Turtle()
-def draw_timer():
+def draw_timer():setup_main_screen
     # Ẩn con rùa.
     pen_timer.hideturtle()
     # Nhấc bút lên.
@@ -97,6 +97,7 @@ def read_data():
     # Đọc câu hỏi và đáp án từ Files.
     # Số lượng câu hỏi
     num_questions = int(game_numdd)
+    print("game_numdd:" + str(game_numdd))
     # Ban đầu, mảng dữ liệu là trống
     data = []
     # Các file câu hỏi đánh số là q1.txt, q2.txt, q3.txt,...
@@ -126,7 +127,8 @@ def generate_math_questions():
     # Ban đầu, danh sách câu hỏi trống.
     data = []
     # Số lượng câu hỏi sinh ra.
-    num_questions = game_numdd
+    num_questions = game_nummath
+    print("game_nummath: " + str(game_nummath))
     # Hai phép toán: cộng và nhân
     operators = ["+", "x", ":", "-"]    
     # Số lượng chữ số tối đa khi sinh câu hỏi ngẫu nhiên
@@ -335,6 +337,48 @@ def setup_menu_screen():
     screen.onclick(clickPosition)
     turtle.mainloop()
 
+def setup_gameover_screen():
+    global screen_name
+    screen_name = "Game over"
+    # Màn hình Turtle
+    screen = turtle.Screen()
+    # Thiết lập kích thước màn hình 
+    screen.setup(1190, 666)
+    # Thiết lập ảnh nền cho màn hình
+    screen.bgpic('backgroundgameover.png')
+    # Thiết lập tiêu đề cho cửa sổ chương trình
+    turtle.title("Siêu câu đố - You lost")
+    # Thiết lập sự kiện nhấn chuột
+    screen.onclick(clickPosition2)
+    turtle.mainloop()
+
+def clickPosition2(x, y):
+    print("click: ", screen_name, "(", x, "," ,y,")")
+    # chỉ xử lý cho màn hình menu
+    if screen_name != 'Game over':
+        return
+    
+    # button position   
+    btn_playagain_left = -240
+    btn_playagain_top = 120
+    btn_playagain_right = 230
+    btn_playagain_bottom = 6
+    
+    btn_thoat_left = -212
+    btn_thoat_top = -29
+    btn_thoat_right = 208
+    btn_thoat_bottom = -135
+    
+    # check click position 
+    if btn_playagain_left <= x and x <= btn_playagain_right and btn_playagain_bottom <= y and y <= btn_playagain_top:
+        print('Click chơi lại')
+        setup_menu_screen()
+    elif btn_thoat_left <= x and x <= btn_thoat_right and btn_thoat_bottom <= y and y <= btn_thoat_top:
+        print('Click thoát')
+        exit()
+    return
+
+
 def input_number(title, prompt):
     while True:
         input_value = turtle.textinput(title, prompt)
@@ -345,19 +389,23 @@ def input_number(title, prompt):
             return int(input_value)
 
 def input_setting():
-    global che_do, game_numath, game_numdd, math_digit
+    global che_do
+    global game_nummath
+    global game_numdd
+    global math_digit
     che_do = turtle.textinput("Thiết lập", "Hãy chọn chế độ dễ, bình thường, khó hoặc khác, dễ nhập 1, bình thường nhập 2, khó nhập 3, khác nhập 4: ")
     if che_do == '1':
-        game_nummath = 3
-        game_numdd = 2
+        game_nummath = 2
+        game_numdd = 3
         math_digit = 1
     elif che_do == '2':
-        game_nummath = 10
-        game_numdd = 5
+        game_nummath = 5
+        game_numdd = 10
+
         math_digit = 2
     elif che_do == '3':
-        game_nummath = 20
-        game_numdd = 10
+        game_nummath = 10
+        game_numdd = 20
         math_digit = 3
     else:
         # game_numath = int(turtle.textinput("Thiết lập", "Số câu hỏi về Toán Học:"))
@@ -368,6 +416,10 @@ def input_setting():
         math_digit = input_number("Thiết lập", "Số lượng chữ số trong phép tính: ")
         if game_numdd > 20:
             game_numdd = 20
+    print("che_do:" + str(che_do))
+    print("game_nummath:" + str(game_nummath))
+    print("game_numdd:" + str(game_numdd))
+    print("math_digit:" + str(math_digit))
     return
 
 # Vẽ thời gian
@@ -736,6 +788,7 @@ def start_main_game():
         game.start()
     else:
         print("You lost")
+        setup_gameover_screen()
 
 # Gọi hàm thiết lập màn hình    
 # setup_main_screen()
