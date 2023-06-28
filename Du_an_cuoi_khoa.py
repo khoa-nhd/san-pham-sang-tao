@@ -26,8 +26,8 @@ import turtle
 #     game_numdd = int(input("Số câu hỏi về Đoàn Đội tối đa 20 câu: "))
 #     math_digit = int(input("Số lượng chữ số trong phép tính: "))
 che_do = 2
-game_nummath = 10
-game_numdd = 5
+game_nummath = 5
+game_numdd = 10
 math_digit = 2
 
 # Tên màn hình hiện tại (menu, main)
@@ -64,8 +64,9 @@ def play_sound(file):
     pygame.mixer.init()
     sound = pygame.mixer.Sound(file)
     sound.play()
+# gavatar = None
+avatar = turtle.Turtle()
 # Vẽ hình nhân vật.
-avatar = turtle.Turtle()         
 def draw_avatar(image):
     # Phải gọi lệnh turtle.addshape trước khi vẽ ảnh.
     turtle.addshape(image)  
@@ -78,32 +79,36 @@ def draw_avatar(image):
 # Khởi tạo cây bút chuyên dùng để vẽ thời gian.
 pen_timer = turtle.Turtle()
 def draw_timer():
-    # Ẩn con rùa.
-    pen_timer.hideturtle()
-    # Nhấc bút lên.
-    pen_timer.penup()
-    # Xoá, để khi vẽ điểm không bị đè lên nhau.
-    pen_timer.clear()
-    # Đổi màu.
-    pen_timer.color('blue')
-    # Đặt vị trí.
-    pen_timer.setposition(-470, -20)
-    # Viết điểm số ra màn hình.
-    pen_timer.write(round(state.get_timer()), font=get_font(40))
-    # Vẽ lại điểm số sau 1000ms (1 giây) nữa
+    if screen_name == 'main':
+        # Ẩn con rùa.
+        pen_timer.hideturtle()
+        # Nhấc bút lên.
+        pen_timer.penup()
+        # Xoá, để khi vẽ điểm không bị đè lên nhau.
+        pen_timer.clear()
+        # Đổi màu.
+        pen_timer.color('blue')
+        # Đặt vị trí.
+        pen_timer.setposition(-470, -20)
+        # Viết điểm số ra màn hình.
+        pen_timer.write(round(state.get_timer()), font=get_font(40))
+        # Vẽ lại điểm số sau 1000ms (1 giây) nữa
     turtle.Screen().ontimer(draw_timer, 1000)
 # Khai báo dữ liệu câu hỏi và đáp án
 def read_data():
     # Đọc câu hỏi và đáp án từ Files.
     # Số lượng câu hỏi
     num_questions = int(game_numdd)
-    print("game_numdd:" + str(game_numdd))
     # Ban đầu, mảng dữ liệu là trống
     data = []
     # Các file câu hỏi đánh số là q1.txt, q2.txt, q3.txt,...
     # Các file câu trả lời đánh số là a1.txt, a2.txt, a3.txt,...
     # Ta dùng hàm range(1, x + 1) để duyệt qua các số 1, 2, ..., x
-    for i in range(1, num_questions + 1):
+    all_list = [*range(1,20)]
+    random.shuffle(all_list)
+    # for i in range(1, num_questions + 1):
+    for i in all_list[0:num_questions]:
+        rand_index = random.randint(1, 20)
         # Đọc câu hỏi, dùng encoding='utf-8' để đọc tiếng Việt
         filename = 'q' + str(i) + '.txt'
         f = open(filename, 'r', encoding='utf-8')
@@ -128,7 +133,6 @@ def generate_math_questions():
     data = []
     # Số lượng câu hỏi sinh ra.
     num_questions = game_nummath
-    print("game_nummath: " + str(game_nummath))
     # Hai phép toán: cộng và nhân
     operators = ["+", "x", ":", "-"]    
     # Số lượng chữ số tối đa khi sinh câu hỏi ngẫu nhiên
@@ -141,10 +145,13 @@ def generate_math_questions():
         op = random.choice(operators)
         
         if op == ':':
-            while a % b != 0:
-                a = random.randint(1, 10**(max_digits-1))
+            # while a % b != 0:
+            #     a = random.randint(1, 10**(max_digits-1))
+            #     b = random.randint(1, 10**(max_digits-1))
+            #     a = a * b
+            while a < 10**max_digits: 
                 b = random.randint(1, 10**(max_digits-1))
-                a = a * b
+                a = b * random.randint(1, 10**(max_digits))
         elif op == "-":
             if b > a:
                 a, b = b, a
@@ -157,8 +164,7 @@ def generate_math_questions():
         elif op == "x":
             answer = a * b
         elif op == ":":
-            answer = a / b
-            int(answer)
+            answer = int(a / b)
         elif op == "-":
             answer = a - b
         # Thêm câu hỏi vào danh sách
@@ -174,7 +180,10 @@ def get_font(font_size):
 
 # Khởi tạo cây bút chuyên dùng để vẽ Điểm số.
 pen_score = turtle.Turtle()
+global final_score
 def draw_score():
+    global score
+    global final_score
     # Ẩn con rùa.
     pen_score.hideturtle()
     # Nhấc bút lên.
@@ -187,6 +196,7 @@ def draw_score():
     pen_score.setposition(-136, -183)
     # Viết điểm số ra màn hình.
     pen_score.write(state.score, font=get_font(28))
+    print(state.score)
 
 # In câu hỏi ra màn hình
 def ask_question(question, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat):
@@ -309,6 +319,8 @@ def clickPosition(x, y):
 # Thiết lập màn hình giao diện turtle
 def setup_main_screen():
     global screen_name
+    global avatar
+    score = 0
     screen_name = "main"
     turtle.resetscreen()
     # Màn hình Turtle
@@ -321,10 +333,13 @@ def setup_main_screen():
     # screen.onclick(None)
     # Thiết lập tiêu đề cho cửa sổ chương trình
     turtle.title("Siêu câu đố")
+    # khởi tạo lại avatar
+    avatar = turtle.Turtle()
     
 def setup_menu_screen():
     global screen_name
     screen_name = "menu"
+    turtle.resetscreen()
     # Màn hình Turtle
     screen = turtle.Screen()
     # Thiết lập kích thước màn hình 
@@ -339,7 +354,15 @@ def setup_menu_screen():
 
 def setup_gameover_screen():
     global screen_name
+    global final_score
+    final_score = 0
+    if final_score <= 0:
+        state.score = final_score * -1 + final_score
+    else:
+        state.score = final_score - final_score
     screen_name = "Game over"
+    turtle.resetscreen()
+    turtle.clearscreen()
     # Màn hình Turtle
     screen = turtle.Screen()
     # Thiết lập kích thước màn hình 
@@ -416,10 +439,6 @@ def input_setting():
         math_digit = input_number("Thiết lập", "Số lượng chữ số trong phép tính: ")
         if game_numdd > 20:
             game_numdd = 20
-    print("che_do:" + str(che_do))
-    print("game_nummath:" + str(game_nummath))
-    print("game_numdd:" + str(game_numdd))
-    print("math_digit:" + str(math_digit))
     return
 
 # Vẽ thời gian
@@ -427,6 +446,11 @@ def input_setting():
 #draw_timer()
 
 def start_main_game():
+    # Reset
+    # TODO:
+    global score
+    score = 0
+
     # Kết hợp các câu đố vui đọc từ File với các câu tính nhẩm Siêu Trí Tuệ.
     data = read_data() + generate_math_questions()
 
@@ -439,10 +463,11 @@ def start_main_game():
     for question in data:
         lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat = ask_question(question, lanDung, thoiGianItNhat, thoiGian, lanDungNhieuNhat)
     print("Bạn có lần đúng liên tiếp nhều nhất là: " + str(lanDungNhieuNhat) + " lần.")
+    print("final score: " + str(state.score))
+    global final_score
+    final_score = state.score
+    
     print("Thời gian suy nghĩ nhanh nhất mà có câu trả lời chính xác là: " + str(thoiGianItNhat) + " giây.")
-        
-    turtle.bye()
-
 
     if state.score >= 300:
         #Chúc mừng
